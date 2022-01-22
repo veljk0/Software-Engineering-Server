@@ -24,7 +24,9 @@ import MessagesBase.UniquePlayerIdentifier;
 import server.main.contorllers.GameController;
 import server.main.exceptions.GenericExampleException;
 import server.main.generators.Generator;
+import server.main.marshaller.Marshaller;
 import server.main.model.Game;
+import server.main.model.Map;
 import server.main.model.Player;
 
 @RestController
@@ -101,16 +103,16 @@ public class ServerEndpoints {
 		
 		
 		
-		Player player = new Player(playerRegistration.getStudentFirstName(), playerRegistration.getStudentLastName(), playerRegistration.getStudentID(), newPlayerID.toString());
+		Player player = new Player(playerRegistration.getStudentFirstName(), playerRegistration.getStudentLastName(), playerRegistration.getStudentID(), newPlayerID.getUniquePlayerID());
 		
-		System.out.println(newPlayerID.toString());
+		//System.out.println(newPlayerID.toString());
 
 		
 		gameController.getGame(gameID.getUniqueGameID()).addPlayer(player);
 		
 		ResponseEnvelope<UniquePlayerIdentifier> playerIDMessage = new ResponseEnvelope<>(newPlayerID);
 		
-		System.out.println(player.getUniquePlayerID());
+		System.out.println(player.getUniquePlayerID() +  " " + player.getPlayerNumber());
 		
 		return playerIDMessage;
 
@@ -125,6 +127,20 @@ public class ServerEndpoints {
 		public @ResponseBody ResponseEnvelope<UniquePlayerIdentifier> mapExchange (
 				@Validated @PathVariable UniqueGameIdentifier gameID,
 				@Validated @RequestBody HalfMap halfMap) {
+			
+			gameController.checkIfGameExists(gameID.getUniqueGameID());
+			
+			Game game = gameController.getGame(gameID.getUniqueGameID());
+			System.out.println("mapapaaappapapapa " + halfMap.getUniquePlayerID() + " " + game.gePlayerNumber(halfMap.getUniquePlayerID()));
+
+			//game.checkIfCorrectPlayerIsPlaying(halfMap.getUniquePlayerID());
+			Map playerHalfMap = new Map(Marshaller.convertMapToClient(halfMap, game.gePlayerNumber(halfMap.getUniquePlayerID())));
+			
+			System.out.println();
+			
+			
+			game.registerHalfMap(playerHalfMap, halfMap.getUniquePlayerID());
+			
 			UniquePlayerIdentifier newPlayerID = new UniquePlayerIdentifier(UUID.randomUUID().toString());
 			
 			return null;

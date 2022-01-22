@@ -3,6 +3,7 @@ package server.main.model;
 import java.util.UUID;
 
 import server.main.enumeration.PlayerGameState;
+import server.main.enumeration.PlayerNumber;
 
 public class Player {
 	private String uniquePlayerID;
@@ -11,6 +12,7 @@ public class Player {
 	private String studentID;
 	private PlayerGameState playerGameState;
     private boolean collectedTreasure;
+	private PlayerNumber playerNumber; 
 	
     public Player(String firstName, String lastName, String studentID, String uniquePlayerID) {
 		super();
@@ -66,5 +68,13 @@ public class Player {
 
 	public void setCollectedTreasure(boolean collectedTreasure) {
 		this.collectedTreasure = collectedTreasure;
+	}
+	
+	public void setPlayerNumber(PlayerNumber playerNumber) {
+		this.playerNumber = playerNumber;
+	}
+	
+	public PlayerNumber getPlayerNumber() {
+		return playerNumber;
 	}
 }

@@ -6,5 +6,5 @@ package server.main.enumeration;
  */
 
 public enum FortState {
-	EnemyFortPresent, MyFortPresent, NoOrUnknownFortState
+	EnemyFortPresent, MyFortPresent, NoOrUnknownFortState, PlayerOneFortPresent, PlayerTwoFortPresent
 }
