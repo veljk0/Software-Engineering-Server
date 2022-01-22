@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,16 +16,24 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import MessagesBase.HalfMap;
 import MessagesBase.PlayerRegistration;
 import MessagesBase.ResponseEnvelope;
 import MessagesBase.UniqueGameIdentifier;
 import MessagesBase.UniquePlayerIdentifier;
-import server.exceptions.GenericExampleException;
+import server.main.contorllers.GameController;
+import server.main.exceptions.GenericExampleException;
+import server.main.generators.Generator;
+import server.main.model.Game;
+import server.main.model.Player;
 
 @RestController
 @RequestMapping(value = "/games")
 public class ServerEndpoints {
-
+	
+	@Autowired
+	private GameController gameController;
+	
 	// ADDITONAL TIPS ON THIS MATTER ARE GIVEN THROUGHOUT THE TUTORIAL SESSION!
 	// Note, the same network messages which you have used for the client (along
 	// with its documentation) apply to the server too.
@@ -50,11 +59,7 @@ public class ServerEndpoints {
 			@RequestParam(required = false, defaultValue = "false", value = "enableDebugMode") boolean enableDebugMode,
 			@RequestParam(required = false, defaultValue = "false", value = "enableDummyCompetition") boolean enableDummyCompetition) {
 
-		// set showExceptionHandling to true to test/play around with the automatic
-		// exception handling (see the handleException method at the bottom)
-		// this is just some testing code that you can see how exceptions can be used to
-		// signal errors to the client, you can REMOVE
-		// these lines in your real server implementation
+		
 		boolean showExceptionHandling = false;
 		if (showExceptionHandling) {
 			// if any error occurs, simply throw an exception with inherits from
@@ -73,7 +78,9 @@ public class ServerEndpoints {
 		// length. A simple solution for this
 		// would be creating an alphabet and choosing random characters from it till the
 		// new game id becomes long enough
-		UniqueGameIdentifier gameIdentifier = new UniqueGameIdentifier("game1");
+		String gameID = Generator.generateID();
+		gameController.addGame(new Game(gameID));
+		UniqueGameIdentifier gameIdentifier = new UniqueGameIdentifier(gameID);
 		return gameIdentifier;
 
 		// note you will need to include additional logic, e.g., additional classes
@@ -86,13 +93,51 @@ public class ServerEndpoints {
 			@Validated @PathVariable UniqueGameIdentifier gameID,
 			@Validated @RequestBody PlayerRegistration playerRegistration) {
 		UniquePlayerIdentifier newPlayerID = new UniquePlayerIdentifier(UUID.randomUUID().toString());
+		
+		
+		
+		
+		gameController.checkIfGameExists(gameID.getUniqueGameID());
+		
+		
+		
+		Player player = new Player(playerRegistration.getStudentFirstName(), playerRegistration.getStudentLastName(), playerRegistration.getStudentID(), newPlayerID.toString());
+		
+		System.out.println(newPlayerID.toString());
 
+		
+		gameController.getGame(gameID.getUniqueGameID()).addPlayer(player);
+		
 		ResponseEnvelope<UniquePlayerIdentifier> playerIDMessage = new ResponseEnvelope<>(newPlayerID);
+		
+		System.out.println(player.getUniquePlayerID());
+		
 		return playerIDMessage;
 
 		// note you will need to include additional logic, e.g., additional classes
 		// which create, store, validate, etc. exchanged data
 	}
+	
+	
+	
+	// example for a POST endpoint based on games/{gameID}/players
+		@RequestMapping(value = "/{gameID}/halfmaps", method = RequestMethod.POST, consumes = MediaType.APPLICATION_XML_VALUE, produces = MediaType.APPLICATION_XML_VALUE)
+		public @ResponseBody ResponseEnvelope<UniquePlayerIdentifier> mapExchange (
+				@Validated @PathVariable UniqueGameIdentifier gameID,
+				@Validated @RequestBody HalfMap halfMap) {
+			UniquePlayerIdentifier newPlayerID = new UniquePlayerIdentifier(UUID.randomUUID().toString());
+			
+			return null;
+			
+			
+			
+			
+			
+		}
+	
+	
+	
+	
 
 	/*
 	 * Note, this is only the most basic way of handling exceptions in spring (but
