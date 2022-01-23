@@ -21,13 +21,24 @@ public class MapNode {
 	private PlayerPositionState playerPositionState;
 
 	public MapNode() {
+		this.treasureState = TreasureState.NoOrUnknownTreasureState;
+		this.playerPositionState = PlayerPositionState.NoPlayerPresent;
 	}
 
 	public MapNode(Coordinate coordinate, Terrain fieldType, FortState fortState) {
 		this.coordinate = coordinate;
 		this.terrain = fieldType;
 		this.fortState = fortState;
-		playerPositionState = PlayerPositionState.NoPlayerPresent;
+		this.playerPositionState = PlayerPositionState.NoPlayerPresent;
+		this.treasureState = TreasureState.NoOrUnknownTreasureState;
+	}
+	
+	public void updateCoordinateX(int n) {
+		this.coordinate.setX(this.coordinate.getX() + n);
+	}
+	
+	public void updateCoordinateY(int n) {
+		this.coordinate.setY(this.coordinate.getY() + n);
 	}
 
 	/**

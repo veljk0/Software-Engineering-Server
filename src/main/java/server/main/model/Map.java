@@ -5,10 +5,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
 import server.main.enumeration.FortState;
-import server.main.enumeration.PlayerPositionState;
 import server.main.enumeration.Terrain;
+import server.main.enums.FullMapType;
 
 
 /**
@@ -21,12 +20,19 @@ import server.main.enumeration.Terrain;
 public class Map {
 	private HashMap<Coordinate, MapNode> nodes;
 	private boolean horizontalFullMap = false;
+	private FullMapType maptype;
 
 	public Map() {
 		this.nodes = new HashMap<Coordinate, MapNode>();
+		randomizeMapType();
 	}
 	
 	
+	private void randomizeMapType() {
+		this.maptype = FullMapType.randomMapType();
+	}
+
+
 	public Map(HashMap<Coordinate, MapNode> nodes) {
 		this.nodes = nodes;
 	}
@@ -54,12 +60,12 @@ public class Map {
 			String helper = "G";
 			if(nodes.get(c).getFieldType().equals(Terrain.WATER)) helper = "W";
 			if(nodes.get(c).getFieldType().equals(Terrain.MOUNTAIN)) helper = "M";
-			if(nodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player1))
-				helper = "+"; 
-			if(nodes.get(c).getPlayerPositionState().equals(PlayerPositionState.BothPlayerPosition))
-				helper = "*"; 
-			if(nodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player2))
-				helper = "&"; 
+			//if(nodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player1))
+				//helper = "+"; 
+//			if(nodes.get(c).getPlayerPositionState().equals(PlayerPositionState.BothPlayerPosition))
+//				helper = "*"; 
+			//Sif(nodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player2))
+				//helper = "&"; 
 			if(nodes.get(c).getFortState().equals(FortState.PlayerOneFortPresent))
 				helper = "#";
 			if(nodes.get(c).getFortState().equals(FortState.PlayerTwoFortPresent))
@@ -82,6 +88,7 @@ public class Map {
 	 * Getters & Setters
 	 * 
 	*/
+	
 	public HashMap<Coordinate, MapNode> getNodes() {
 		return nodes;
 	}
@@ -94,6 +101,16 @@ public class Map {
 
 	public boolean isFullMap() {
 		return nodes.size() == 64;
+	}
+
+
+	public FullMapType getMaptype() {
+		return maptype;
+	}
+
+
+	public void setMaptype(FullMapType maptype) {
+		this.maptype = maptype;
 	}
 
 }

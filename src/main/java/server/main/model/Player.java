@@ -1,7 +1,5 @@
 package server.main.model;
 
-import java.util.UUID;
-
 import server.main.enumeration.PlayerGameState;
 import server.main.enumeration.PlayerNumber;
 
@@ -12,7 +10,8 @@ public class Player {
 	private String studentID;
 	private PlayerGameState playerGameState;
     private boolean collectedTreasure;
-	private PlayerNumber playerNumber; 
+	private PlayerNumber playerNumber;
+	private Map halfMap;
 	
     public Player(String firstName, String lastName, String studentID, String uniquePlayerID) {
 		super();
@@ -20,6 +19,13 @@ public class Player {
 		this.lastName = lastName;
 		this.studentID = studentID;
 		this.uniquePlayerID = uniquePlayerID;
+		this.halfMap = new Map();
+		this.playerGameState = PlayerGameState.MustWait;
+		this.collectedTreasure = false;
+	}
+
+	public Player() {
+	
 	}
 
 	public String getUniquePlayerID() {
@@ -77,4 +83,24 @@ public class Player {
 	public PlayerNumber getPlayerNumber() {
 		return playerNumber;
 	}
+
+	public Map getHalfMap() {
+		return halfMap;
+	}
+
+	public void setHalfMap(Map halfMap) {
+		this.halfMap = halfMap;
+		this.playerGameState = PlayerGameState.MustWait;
+	}
+	
+	public boolean isHalfMap() {
+		return this.halfMap.getNodes().size() == 32;
+	}
+
+	@Override
+	public String toString() {
+		return "Player [uniquePlayerID=" + uniquePlayerID + "playerGameState=" + playerGameState + "]";
+	}
+	
+	
 }
