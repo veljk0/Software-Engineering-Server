@@ -9,9 +9,10 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import server.main.enumeration.FullMapType;
 import server.main.enumeration.PlayerGameState;
 import server.main.enumeration.PlayerNumber;
-import server.main.enums.FullMapType;
 import server.main.exceptions.NumberOfPlayersException;
 import server.main.exceptions.PlayerNotRegisteredException;
 

@@ -2,9 +2,8 @@ package server.main.marshaller;
 
 import java.util.List;
 import java.util.Random;
-
-import com.fasterxml.jackson.databind.type.MapType;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,12 +16,10 @@ import MessagesGameState.EPlayerPositionState;
 import MessagesGameState.ETreasureState;
 import MessagesGameState.FullMapNode;
 import server.main.enumeration.FortState;
-import server.main.enumeration.PlayerGameState;
 import server.main.enumeration.PlayerNumber;
 import server.main.enumeration.PlayerPositionState;
 import server.main.enumeration.Terrain;
 import server.main.enumeration.TreasureState;
-import server.main.enums.FullMapType;
 import server.main.exceptions.MarshallerTerrainException;
 import server.main.model.Coordinate;
 import server.main.model.Map;
@@ -30,103 +27,89 @@ import server.main.model.MapNode;
 
 
 public class Marshaller {
-
+	
+	static Logger logger = LoggerFactory.getLogger(Marshaller.class);
 
 	/**
-	 * Marshaller --- Making data readable in both directions for the CLIENT and for the SERVER
-	 * Tasks:
-	 * 1. Convert PlayerGameState to Client
-	 * 2. Convert Map to Client
-	 * 		2.1 Convert Coordinates to Client
-	 * 		2.2 Convert Terrain to Client
-	 * 		2.3 Convert FortState to Client
-	 * 		2.4 Convert PlayerPosition to Client
-	 * 		2.5 Convert TreasureState to Client
-	 * 3. Convert Treasure State to Client
-	 * 4. Convert map to Server
-	 * 5. Convert move to Server
 	 * @author Veljko Radunovic 01528243
+	 * Marshaller --- Making data readable in both directions for the CLIENT and for the SERVER 
+	 * Tasks: 
+	 * 1. Convert HalfMap to Server Map 
+	 * 	1.1 Converting halfMapCoordinate to server map coordinates
+	 * 	1.2 Converting halfMap terrain to server map terrain 
+	 * 	1.3 Converting halfMap fortState to server map fortState
+	 * 	1.4 Converting halfMap PlayerPosition to server map PlayerPosition
+	 * 2. Convert Server Map to FullMap for Client 
+	 * 	2.1 Convert Server Map FortState to FullMap EFortState
+	 * 	2.2 Convert Server Map TreasureState to FullMap ETreasureState
+	 * 	2.3 Convert Server Map PlayerPositionState to FullMap EPlayerPositionState
+	 * 	2.4 Convert Server Map Terrain to FullMap ETerrain
 	 */
+
+	public Marshaller() {}
 
 	
 	/**
-	 * 
-	 * @param ClientData clientData
-	 * @param GameState serverGameState
-	 */
-	
-	
-	
-	public Marshaller() {}
-	
-	/** 
-	 * TASK 1
-	 * @param ClientData clientData
-	 * @param GameState serverGameState
-	 * @return PlayerGameState
-	 */
-	
-	
-	/** TASK 2
-	 * @param playerNumber 
-	 * 
-	 * @param ClientData clientData
-	 * @param GameState serverGameState
+	 * @author Veljko Radunovic 01528243
+	 * Task 1 Converting halfMap from player to map
+	 * @param halfMap
+	 * @param playerNumber
 	 * @return HashMap<Coordinate, MapNode>
 	 */
 	public static HashMap<Coordinate, MapNode> convertMapToServer(HalfMap halfMap, PlayerNumber playerNumber) {
 
-		
-			Collection<HalfMapNode> halfMapNodes = halfMap.getMapNodes();
-			HashMap<Coordinate, MapNode> myMapNodes = new HashMap<Coordinate, MapNode>();
-			
-			
-	
-			for (HalfMapNode halfMapNode : halfMapNodes) {
-				MapNode myMapNode = new MapNode();
-				myMapNode.setCoordinate(convertCoordinatesToClient(halfMapNode));
-				myMapNode.setFieldType(convertTerrainToClient(halfMapNode));
-				myMapNode.setFortState(convertFortStateToClient(halfMapNode, playerNumber));
-				myMapNode.setPlayerPositionState(convertPlayerPositionStateToClient(myMapNode.getFortState()));
-				myMapNodes.put(myMapNode.getCoordinate(), myMapNode);
-			}
-			
-			List<Coordinate> randomList = new ArrayList<>(myMapNodes.keySet());
-			Collections.shuffle(randomList);
-			
-			for(Coordinate c : randomList) {
-				if(myMapNodes.get(c).getFieldType().equals(Terrain.GRASS) 
-						&& (!myMapNodes.get(c).getFortState().equals(FortState.PlayerOneFortPresent) 
-								&& !myMapNodes.get(c).getFortState().equals(FortState.PlayerTwoFortPresent))) {
-					if(playerNumber.equals(PlayerNumber.PlayerOne) && myMapNodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player1)) { 
-						myMapNodes.get(c).setTreasureState(TreasureState.PlayerOneTreasureIsPresent);	
-						break;
-					}
-					
-					else if(playerNumber.equals(PlayerNumber.PlayerTwo) && myMapNodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player2)) {
-						myMapNodes.get(c).setTreasureState(TreasureState.PlayerTwoTreasureIsPresent);
-						break;
-					}
+		Collection<HalfMapNode> halfMapNodes = halfMap.getMapNodes();
+		HashMap<Coordinate, MapNode> myMapNodes = new HashMap<Coordinate, MapNode>();
+
+		for (HalfMapNode halfMapNode : halfMapNodes) {
+			MapNode myMapNode = new MapNode();
+			myMapNode.setCoordinate(convertCoordinatesToClient(halfMapNode));
+			myMapNode.setFieldType(convertTerrainToClient(halfMapNode));
+			myMapNode.setFortState(convertFortStateToClient(halfMapNode, playerNumber));
+			myMapNode.setPlayerPositionState(convertPlayerPositionStateToClient(myMapNode.getFortState()));
+			myMapNodes.put(myMapNode.getCoordinate(), myMapNode);
+		}
+
+		List<Coordinate> randomList = new ArrayList<>(myMapNodes.keySet());
+		Collections.shuffle(randomList);
+
+		for (Coordinate c : randomList) {
+			if (myMapNodes.get(c).getFieldType().equals(Terrain.GRASS)
+					&& (!myMapNodes.get(c).getFortState().equals(FortState.PlayerOneFortPresent)
+							&& !myMapNodes.get(c).getFortState().equals(FortState.PlayerTwoFortPresent))) {
+				if (playerNumber.equals(PlayerNumber.PlayerOne)
+						&& myMapNodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player1)) {
+					myMapNodes.get(c).setTreasureState(TreasureState.PlayerOneTreasureIsPresent);
+					break;
+				}
+
+				else if (playerNumber.equals(PlayerNumber.PlayerTwo)
+						&& myMapNodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player2)) {
+					myMapNodes.get(c).setTreasureState(TreasureState.PlayerTwoTreasureIsPresent);
+					break;
 				}
 			}
-			
-			return myMapNodes;
-	
-		
+		}
+
+		return myMapNodes;
+
 	}
 
-	/** TASK 2.1
-	 * 
-	 * @param FullMapNode fullMapNode
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 1.1 Converting halfMapCoordinate to server map coordinates
+	 * @param HalfMapNode halfMapNode
 	 * @return Coordinate
 	 */
 	public static Coordinate convertCoordinatesToClient(HalfMapNode halfMapNode) {
 		return new Coordinate(halfMapNode.getX(), halfMapNode.getY());
 	}
 
-	/** TASK 2.2
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 1.2 Converting halfMap terrain to server map terrain
 	 * 
-	 * @param FullMapNode fullMapNode
+	 * @param HalfMapNode halfMapNode
 	 * @return Terrain
 	 */
 	public static Terrain convertTerrainToClient(HalfMapNode halfMapNode) {
@@ -142,27 +125,33 @@ public class Marshaller {
 		}
 	}
 
-	/** TASK 2.3
-	 * @param playerNumber 
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 1.3 Converting halfMap fortState to server map fortState
 	 * 
-	 * @param FullMapNode fullMapNode
+	 * @param playerNumber
+	 * 
+	 * @param HalfMapNode halfMapNode
+	 * @param PlayerNumber playerNumber
 	 * @return FortState
 	 */
 	public static FortState convertFortStateToClient(HalfMapNode halfMapNode, PlayerNumber playerNumber) {
-		if(halfMapNode.isFortPresent() && playerNumber.equals(PlayerNumber.PlayerOne)) 
+		if (halfMapNode.isFortPresent() && playerNumber.equals(PlayerNumber.PlayerOne))
 			return FortState.PlayerOneFortPresent;
-		else if(halfMapNode.isFortPresent() && playerNumber.equals(PlayerNumber.PlayerTwo))
+		else if (halfMapNode.isFortPresent() && playerNumber.equals(PlayerNumber.PlayerTwo))
 			return FortState.PlayerTwoFortPresent;
-		else return FortState.NoOrUnknownFortState;
+		else
+			return FortState.NoOrUnknownFortState;
 	}
 
-	/** TASK 2.4
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 1.4 Converting halfMap PlayerPosition to server map PlayerPosition
 	 * 
-	 * @param FullMapNode fullMapNode
+	 * @param FortState fortState
 	 * @return PlayerPositionState
 	 */
-	
-	
+
 	private static PlayerPositionState convertPlayerPositionStateToClient(FortState fortState) {
 		switch (fortState) {
 		case PlayerOneFortPresent:
@@ -174,55 +163,7 @@ public class Marshaller {
 		}
 	}
 
-	/** TASK 2.5
-	 * 
-	 * @param FullMapNode fullMapNode
-	 * @return TreasureState
-	 */
-	/*
-	private static TreasureState convertTreasureStateToClient(HalfMapNode fullMapNode) {
-		switch (fullMapNode.getTreasureState()) {
-		case MyTreasureIsPresent:
-			return TreasureState.MyTreasureIsPresent;
-		case NoOrUnknownTreasureState:
-			return TreasureState.NoOrUnknownTreasureState;
-		default:
-			throw new MarshallerTerrainException("MarshallerTerrainException", "Marshaller Terrain error");
-		}
-	}
-	*/
-	/** TASK 3
-	 * 
-	 * @param GameState serverGameState
-	 * @return boolean
-	 */
-	// TODO
-	/*
-	public boolean convertTreasureStateToClient(GameState serverGameState) {
-		Set<PlayerState> playerStates = serverGameState.getPlayers();
-		for (PlayerState p : playerStates)
-			if (p.getUniquePlayerID().equals(clientData.getPlayerID())) {
-				
-				if(p.hasCollectedTreasure()) 
-					return true;
-			}
-		
-		return false;
-	}
-
-*/
-	/**
-	 * Marshaller --- Making data readable for SERVER - Methods
-	 * 
-	 * @author Veljko Radunovic 01528243
-	 */
-
 	
-	/** TASK 4
-	 * 
-	 * @param Map map
-	 * @return Collection<HalfMapNode>
-	 */
 	public static Collection<HalfMapNode> convertMapToClient(Map map) {
 		HalfMapNode halfMapNode;
 		Collection<HalfMapNode> halfMapNodes = new ArrayList<HalfMapNode>();
@@ -254,8 +195,14 @@ public class Marshaller {
 	}
 	
 	
-
-
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 2 Convert Server Map to FullMap for Client 
+	 * 
+	 * @param Map map
+	 * @param PlayerNumber playerNumber
+	 * @return Collection<FullMapNode>
+	 */
 	public static Collection<FullMapNode> convertMapToFullMapNodes(PlayerNumber playerNumber, Map map) {
 		FullMapNode fullMapNode;
 		Collection<FullMapNode> fullMapNodes = new ArrayList<FullMapNode>();
@@ -263,84 +210,117 @@ public class Marshaller {
 		EPlayerPositionState playerPositionState = null;
 		ETreasureState treasureState = null;
 		EFortState fortState = null;
-		
-		
+
 		Random random = new Random();
 		int conunter = 0;
 		int randomNubmer = random.nextInt(32);
-		
+
 		for (Coordinate c : map.getNodes().keySet()) {
-			
-			
+
 			terrain = convertTerrainToClient(map.getNodes().get(c).getFieldType());
-			
-			playerPositionState = convertPlayerPositionStateToClient(map.getNodes().get(c).getPlayerPositionState(), playerNumber);
+
+			playerPositionState = convertPlayerPositionStateToClient(map.getNodes().get(c).getPlayerPositionState(),
+					playerNumber);
 			treasureState = convertTreasureStateToClient(map.getNodes().get(c).getTreasureState(), playerNumber);
 			fortState = convertFortStateToClient(map.getNodes().get(c).getFortState(), playerNumber);
 			int x = map.getNodes().get(c).getCoordinate().getX();
 			int y = map.getNodes().get(c).getCoordinate().getY();
-			
-			if(conunter == randomNubmer && playerPositionState.equals(EPlayerPositionState.MyPlayerPosition)) {
+
+			if (conunter == randomNubmer && playerPositionState.equals(EPlayerPositionState.MyPlayerPosition)) {
 				playerPositionState = EPlayerPositionState.BothPlayerPosition;
 			}
-			
-			else if(conunter == randomNubmer)
+
+			else if (conunter == randomNubmer)
 				playerPositionState = EPlayerPositionState.EnemyPlayerPosition;
-			
-			
+
 			fullMapNode = new FullMapNode(terrain, playerPositionState, treasureState, fortState, x, y);
 			fullMapNodes.add(fullMapNode);
 			++conunter;
 		}
-		
-		return fullMapNodes;
-		
-	
-	}
 
+		return fullMapNodes;
+
+	}
+	
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 2.1 Convert Server Map FortState to FullMap EFortState
+	 * 
+	 * @param FortState fortState
+	 * @param PlayerNumber playerNumber
+	 * @return EFortState
+	 */
 	private static EFortState convertFortStateToClient(FortState fortState, PlayerNumber playerNumber) {
-		if(playerNumber.equals(PlayerNumber.PlayerOne) && fortState.equals(FortState.PlayerOneFortPresent)) return EFortState.MyFortPresent;
-		if(playerNumber.equals(PlayerNumber.PlayerTwo) && fortState.equals(FortState.PlayerTwoFortPresent)) return EFortState.MyFortPresent;
-		if(playerNumber.equals(PlayerNumber.PlayerTwo) && fortState.equals(FortState.PlayerOneFortPresent)) return EFortState.NoOrUnknownFortState;
-		if(playerNumber.equals(PlayerNumber.PlayerOne) && fortState.equals(FortState.PlayerTwoFortPresent)) return EFortState.NoOrUnknownFortState;
+		if (playerNumber.equals(PlayerNumber.PlayerOne) && fortState.equals(FortState.PlayerOneFortPresent))
+			return EFortState.MyFortPresent;
+		if (playerNumber.equals(PlayerNumber.PlayerTwo) && fortState.equals(FortState.PlayerTwoFortPresent))
+			return EFortState.MyFortPresent;
+		if (playerNumber.equals(PlayerNumber.PlayerTwo) && fortState.equals(FortState.PlayerOneFortPresent))
+			return EFortState.NoOrUnknownFortState;
+		if (playerNumber.equals(PlayerNumber.PlayerOne) && fortState.equals(FortState.PlayerTwoFortPresent))
+			return EFortState.NoOrUnknownFortState;
 		return EFortState.NoOrUnknownFortState;
 	}
-
+	
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 2.2 Convert Server Map TreasureState to FullMap ETreasureState
+	 * 
+	 * @param FortState fortState
+	 * @param PlayerNumber playerNumber
+	 * @return EFortState
+	 */
 	private static ETreasureState convertTreasureStateToClient(TreasureState treasureState, PlayerNumber playerNumber) {
-		
-		if(playerNumber.equals(PlayerNumber.PlayerOne) && treasureState.equals(TreasureState.PlayerOneTreasureIsPresent))
+
+		if (playerNumber.equals(PlayerNumber.PlayerOne)
+				&& treasureState.equals(TreasureState.PlayerOneTreasureIsPresent))
 			return ETreasureState.MyTreasureIsPresent;
-		
-		if(playerNumber.equals(PlayerNumber.PlayerTwo) && treasureState.equals(TreasureState.PlayerTwoTreasureIsPresent))
+
+		if (playerNumber.equals(PlayerNumber.PlayerTwo)
+				&& treasureState.equals(TreasureState.PlayerTwoTreasureIsPresent))
 			return ETreasureState.MyTreasureIsPresent;
-		
+
 		return ETreasureState.NoOrUnknownTreasureState;
 	}
 
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 2.3 Convert Server Map PlayerPositionState to FullMap EPlayerPositionState
+	 * 
+	 * @param PlayerPositionState playerPositionState
+	 * @param PlayerNumber playerNumber
+	 * @return EPlayerPositionState
+	 */
 	private static EPlayerPositionState convertPlayerPositionStateToClient(PlayerPositionState playerPositionState,
 			PlayerNumber playerNumber) {
-		
-		if(playerPositionState.equals(PlayerPositionState.BothPlayerPosition)) return EPlayerPositionState.BothPlayerPosition;
-		if(playerPositionState.equals(PlayerPositionState.NoPlayerPresent)) return EPlayerPositionState.NoPlayerPresent;
-		
-		if(playerNumber.equals(PlayerNumber.PlayerOne) && playerPositionState.equals(PlayerPositionState.Player1))
-			return EPlayerPositionState.MyPlayerPosition;
-		
-		if(playerNumber.equals(PlayerNumber.PlayerOne) && playerPositionState.equals(PlayerPositionState.Player2))
+
+		if (playerPositionState.equals(PlayerPositionState.BothPlayerPosition))
+			return EPlayerPositionState.BothPlayerPosition;
+		if (playerPositionState.equals(PlayerPositionState.NoPlayerPresent))
 			return EPlayerPositionState.NoPlayerPresent;
-		
-		if(playerNumber.equals(PlayerNumber.PlayerTwo) && playerPositionState.equals(PlayerPositionState.Player2))
+
+		if (playerNumber.equals(PlayerNumber.PlayerOne) && playerPositionState.equals(PlayerPositionState.Player1))
 			return EPlayerPositionState.MyPlayerPosition;
-		
-		if(playerNumber.equals(PlayerNumber.PlayerTwo) && playerPositionState.equals(PlayerPositionState.Player1))
+
+		if (playerNumber.equals(PlayerNumber.PlayerOne) && playerPositionState.equals(PlayerPositionState.Player2))
 			return EPlayerPositionState.NoPlayerPresent;
-		
+
+		if (playerNumber.equals(PlayerNumber.PlayerTwo) && playerPositionState.equals(PlayerPositionState.Player2))
+			return EPlayerPositionState.MyPlayerPosition;
+
+		if (playerNumber.equals(PlayerNumber.PlayerTwo) && playerPositionState.equals(PlayerPositionState.Player1))
+			return EPlayerPositionState.NoPlayerPresent;
+
 		return null;
-		}
-		
-		
-
-
+	}
+	
+	/**
+	 * @author Veljko Radunovic 01528243
+	 * TASK 2.4 Convert Server Map Terrain to FullMap ETerrain
+	 * 
+	 * @param Terrain fieldType
+	 * @return ETerrain
+	 */
 	private static ETerrain convertTerrainToClient(Terrain fieldType) {
 		switch (fieldType) {
 		case GRASS:
@@ -352,8 +332,5 @@ public class Marshaller {
 		default:
 			throw new MarshallerTerrainException("MarshallerTerrainException", "Marshaller Terrain error");
 		}
-		
 	}
-
-	
 }

@@ -1,5 +1,12 @@
 package server.main.generators;
 
+/**
+ * Generator
+ * @author Veljko Radunovic 01528243
+ */
+
+
+
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +17,7 @@ public class Generator {
 	
 	public static String generateID() {
 		
-		String s = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz";
+		String s = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "abcdefghijklmnopqrstuvxyz" + "0123456789";
 		String gameID = "";
 		Random random = new Random();
 		for(int i = 0; i < 5; ++i) {

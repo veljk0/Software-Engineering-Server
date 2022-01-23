@@ -9,7 +9,6 @@ public class MapIslandException extends GenericExampleException {
 
 	public MapIslandException(String errorName, String errorMessage) {
 		super(errorName, errorMessage);
-		// TODO Auto-generated constructor stub
 	}
 
 }

@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import server.main.enumeration.FortState;
+import server.main.enumeration.FullMapType;
 import server.main.enumeration.Terrain;
-import server.main.enums.FullMapType;
 
 
 /**

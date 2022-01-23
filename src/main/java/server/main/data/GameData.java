@@ -13,53 +13,45 @@ import org.springframework.stereotype.Component;
 import server.main.model.Game;
 
 /**
- * GameData
- * Spring component that is used to store data. In this case we are storing all new created games 
+ * @author Veljko Radunovic 01528243 GameData Spring component that is used to
+ *         store data. In this case we are storing all new created games All
+ *         created games will be saved here.
  */
-
 
 @Component
 @EnableScheduling
 public class GameData {
-	
+
 	static Logger logger = LoggerFactory.getLogger(GameData.class);
-	
-	/**
-	 * all created games will be saved in this map
-	 */
-	private Map<String,Game> games;
+
+	private Map<String, Game> games;
 	private List<String> gameIDs;
-	
-	
+
 	public GameData() {
 		games = new HashMap<String, Game>();
 		gameIDs = new ArrayList<String>();
-	
 	}
-	
-	
-	
+
 	/**
-	 * Checking creation time of the games
-	 * Calling function 
+	 * Checking creation time of the games Calling function
 	 */
 	@Scheduled(fixedRate = 5000)
 	public void manageOldGames() {
 		logger.info("GAMEDATA: checking games creation times");
 		System.out.println("Checking creation time of the games");
-		for(String g : games.keySet()) {
-			if(System.currentTimeMillis() - games.get(g).getCreationTime() > 600000) {
+		for (String g : games.keySet()) {
+			if (System.currentTimeMillis() - games.get(g).getCreationTime() > 600000) {
 				games.remove(g);
 				logger.info("GAMEDATA: removing game that is to old");
 			}
-			
+
 		}
 	}
-	
+
 	/**
-	 * Checking number of already existing games
-	 * Adding new created game to the map
-	 *  @param Game game
+	 * Checking number of already existing games Adding new created game to the map
+	 * 
+	 * @param Game game
 	 */
 	public void addGame(Game game) {
 		checkNubmberOfGames();
@@ -67,20 +59,17 @@ public class GameData {
 		games.put(game.getGameID(), game);
 		logger.info("GAMEDATA: added new game to the data: " + game.getGameID());
 	}
-	
-	
-	
+
 	private void checkNubmberOfGames() {
 		logger.info("GAMEDATA: checking number of games");
-		if(games.size() > 999) {
+		if (games.size() > 999) {
 			games.remove(gameIDs.get(0));
 			gameIDs.remove(0);
 		}
-		
+
 	}
 
 	public synchronized Map<String, Game> getGames() {
 		return games;
 	}
-	
 }
