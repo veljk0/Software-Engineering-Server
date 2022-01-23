@@ -47,6 +47,7 @@ public class Game {
 		else player.setPlayerNumber(PlayerNumber.PlayerTwo);
 		
 		this.players.add(player);
+		logger.info("ADDED PLAYER TO GAME " + gameID + " " +  player.getUniquePlayerID());
 		this.gameStateID = UUID.randomUUID().toString();
 	}
 

@@ -54,8 +54,10 @@ public class ServerEndpoints {
 		if(gameController.checkIfGameExists(gameID) == true)
 			throw new GameNotExistingException("Game already exist error", "id has been found in gamedata");
 		
-		gameController.addGame(new Game(gameID));
 		
+		
+		gameController.addGame(new Game(gameID));
+
 		UniqueGameIdentifier gameIdentifier = new UniqueGameIdentifier(gameID);
 		return gameIdentifier;
 	}
@@ -91,6 +93,8 @@ public class ServerEndpoints {
 		
 		String uniqueGameID = gameID.getUniqueGameID();
 		String playerID = halfMap.getUniquePlayerID();
+		
+		
 		
 		if(gameController.checkIfGameExists(uniqueGameID) == false)
 			throw new GameNotExistingException("Game does not exist error", "id has not been found");

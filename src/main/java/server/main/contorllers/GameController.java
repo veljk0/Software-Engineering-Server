@@ -132,34 +132,7 @@ public class GameController {
 	
 	
 	
-	public GameState getInfoForPlayer(String gameID, String playerID) throws PlayerNotTurnException {
-		Collection<PlayerState> playerStates = new ArrayList<PlayerState>();
-		
-		checkIfGameExists(gameID);
-		checkNumberOfRegisteredPlayers(gameID);
-		checkIfPlayerIsInTheGame(gameData.getGames().get(gameID), playerID);
-		checkIfPlayerMustAct(gameID, playerID);
-		
-		Player myPlayer = new Player();
-		
-		for(Player p : gameData.getGames().get(gameID).getPlayers())
-			if(p.getUniquePlayerID().equals(playerID))
-				myPlayer = p;
-		
-		
-		Map myfullMap = gameData.getGames().get(gameID).getFullMap();
-		
-		playerStates = loadPlayerStates(gameID, playerID);
-		
-		Collection<FullMapNode> fullMapNodes = Marshaller.convertMapToFullMapNodes(myPlayer.getPlayerNumber(), myfullMap);
-		
-		
-		Optional<FullMap> fullmap = Optional.ofNullable(new FullMap(fullMapNodes));
-		
-		
-		GameState result = new GameState(fullmap, playerStates, gameData.getGames().get(gameID).getGameStateID());
-		return result;	
-	}
+	
 	
 
 
@@ -195,36 +168,24 @@ public class GameController {
 		return result;
 	}
 
-	public void checkIfPlayerMustAct(String uniqueGameID, String uniquePlayerID) {
-		if(gameData.getGames().get(uniqueGameID).getPlayers().size() != 2) return;
-		
-		setNextPlayeToAct(uniqueGameID);
-		
-	}
+	
 	
 	public void changePlayerGameState(String gameID, String playerID) {
+		
 		for(Player p : gameData.getGames().get(gameID).getPlayers()) {
+			System.out.println("########################### before player: " + p.getUniquePlayerID() + " " + p.getPlayerGameState());
 			if(!p.getUniquePlayerID().equals(playerID)) {
 				p.setPlayerGameState(PlayerGameState.MustAct);
+				System.out.println("########################### after player: " + p.getUniquePlayerID() + " " + p.getPlayerGameState());
+			}
+			else if(p.getUniquePlayerID().equals(playerID)) {
+				p.setPlayerGameState(PlayerGameState.MustWait);
 			}
 		}
 			
 	}
 
-	private void setNextPlayeToAct(String uniqueGameID) {
-		if(gameData.getGames().get(uniqueGameID).getPlayers().size() != 2) return;
-		
-		Player player1 = gameData.getGames().get(uniqueGameID).getPlayers().get(0);
-		Player player2 = gameData.getGames().get(uniqueGameID).getPlayers().get(1);
-		
-		Random random = new Random();
-		boolean helper = random.nextBoolean();
-		
-		if(player1.getPlayerGameState().equals(player2.getPlayerGameState())) {
-			if(helper) player1.setPlayerGameState(PlayerGameState.MustAct);
-			else  player2.setPlayerGameState(PlayerGameState.MustAct);
-		}
-	}
+	
 
 	public void finishGame(String gameID, String playerID) {
 		for(Player player : gameData.getGames().get(gameID).getPlayers()) {

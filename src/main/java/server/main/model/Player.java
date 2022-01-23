@@ -24,9 +24,7 @@ public class Player {
 		this.collectedTreasure = false;
 	}
 
-	public Player() {
 	
-	}
 
 	public String getUniquePlayerID() {
 		return uniquePlayerID;
@@ -90,7 +88,6 @@ public class Player {
 
 	public void setHalfMap(Map halfMap) {
 		this.halfMap = halfMap;
-		this.playerGameState = PlayerGameState.MustWait;
 	}
 	
 	public boolean isHalfMap() {

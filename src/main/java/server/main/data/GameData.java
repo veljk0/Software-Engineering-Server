@@ -1,6 +1,8 @@
 package server.main.data;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -26,12 +28,16 @@ public class GameData {
 	 * all created games will be saved in this map
 	 */
 	private Map<String,Game> games;
+	private List<String> gameIDs;
 	
 	
 	public GameData() {
 		games = new HashMap<String, Game>();
+		gameIDs = new ArrayList<String>();
 	
 	}
+	
+	
 	
 	/**
 	 * Checking creation time of the games
@@ -57,16 +63,19 @@ public class GameData {
 	 */
 	public void addGame(Game game) {
 		checkNubmberOfGames();
+		gameIDs.add(game.getGameID());
 		games.put(game.getGameID(), game);
-		logger.info("GAMEDATA: added new game to the data");
+		logger.info("GAMEDATA: added new game to the data: " + game.getGameID());
 	}
 	
 	
 	
 	private void checkNubmberOfGames() {
 		logger.info("GAMEDATA: checking number of games");
-		if(games.size() > 999)
-			games.remove(games.keySet().toArray()[0]);
+		if(games.size() > 999) {
+			games.remove(gameIDs.get(0));
+			gameIDs.remove(0);
+		}
 		
 	}
 

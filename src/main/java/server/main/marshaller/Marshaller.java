@@ -98,11 +98,12 @@ public class Marshaller {
 				if(myMapNodes.get(c).getFieldType().equals(Terrain.GRASS) 
 						&& (!myMapNodes.get(c).getFortState().equals(FortState.PlayerOneFortPresent) 
 								&& !myMapNodes.get(c).getFortState().equals(FortState.PlayerTwoFortPresent))) {
-					if(playerNumber.equals(PlayerNumber.PlayerOne)) { 
+					if(playerNumber.equals(PlayerNumber.PlayerOne) && myMapNodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player1)) { 
 						myMapNodes.get(c).setTreasureState(TreasureState.PlayerOneTreasureIsPresent);	
 						break;
 					}
-					else {
+					
+					else if(playerNumber.equals(PlayerNumber.PlayerTwo) && myMapNodes.get(c).getPlayerPositionState().equals(PlayerPositionState.Player2)) {
 						myMapNodes.get(c).setTreasureState(TreasureState.PlayerTwoTreasureIsPresent);
 						break;
 					}
@@ -274,7 +275,6 @@ public class Marshaller {
 			terrain = convertTerrainToClient(map.getNodes().get(c).getFieldType());
 			
 			playerPositionState = convertPlayerPositionStateToClient(map.getNodes().get(c).getPlayerPositionState(), playerNumber);
-			System.out.println("################################################################ " + map.getNodes().get(c).getTreasureState() );
 			treasureState = convertTreasureStateToClient(map.getNodes().get(c).getTreasureState(), playerNumber);
 			fortState = convertFortStateToClient(map.getNodes().get(c).getFortState(), playerNumber);
 			int x = map.getNodes().get(c).getCoordinate().getX();
